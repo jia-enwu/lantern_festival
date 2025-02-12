@@ -2,7 +2,7 @@
 <html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <title>猜燈謎遊戲</title>
+  <title>猜燈謎遊戲 - 多選題 (順序版)</title>
   <style>
     body {
       font-family: sans-serif;
@@ -15,6 +15,11 @@
       font-size: 20px;
       margin: 20px 0;
     }
+    #options {
+      margin: 10px 0;
+      text-align: left;
+      display: inline-block;
+    }
     #result {
       margin: 10px 0;
     }
@@ -26,24 +31,20 @@
       padding: 5px 10px;
       font-size: 16px;
     }
-    input[type="text"] {
-      width: 200px;
-      padding: 5px;
-      font-size: 16px;
+    input[type="radio"] {
+      transform: scale(1.2);
+      margin-right: 5px;
     }
   </style>
 </head>
 <body>
-  <h1>猜燈謎遊戲</h1>
+  <h1>猜燈謎遊戲（多選順序版）</h1>
 
   <!-- 燈謎題目顯示區 -->
-  <div id="question">按「下一題」開始答題</div>
+  <div id="question">請按「下一題」開始答題</div>
 
-  <!-- 答案輸入欄位 -->
-  <input type="text" id="answerInput" placeholder="輸入你的答案" />
-
-  <!-- 送出答案按鈕 -->
-  <button id="submitBtn">送出答案</button>
+  <!-- 選項顯示區 -->
+  <div id="options"></div>
 
   <!-- 結果顯示 -->
   <div id="result"></div>
@@ -51,201 +52,184 @@
   <!-- 分數顯示 -->
   <div id="score">目前分數：0/0</div>
 
-  <!-- 下一題按鈕 -->
+  <!-- 按鈕 -->
+  <button id="submitBtn">送出答案</button>
   <button id="nextBtn">下一題</button>
 
   <script>
-    // 燈謎清單（可自行增修）
-const riddles = [
-  // 1
-  {
-    question: "有什么东西白天看不见，晚上才能看见？",
-    answer: "星星"
-  },
-  // 2
-  {
-    question: "什么东西越洗越脏？",
-    answer: "水"
-  },
-  // 3
-  {
-    question: "什么东西可以用嘴巴吹大，却不能吃？",
-    answer: "气球"
-  },
-  // 4
-  {
-    question: "什么东西走路没有脚，却能带你到处去？",
-    answer: "车"
-  },
-  // 5
-  {
-    question: "什么东西一插就亮，一拔就黑？",
-    answer: "电灯"
-  },
-  // 6
-  {
-    question: "永远在水里，却不会溺水的是什么？",
-    answer: "鱼"
-  },
-  // 7
-  {
-    question: "一加一不是二（打一个汉字）",
-    answer: "王"
-  },
-  // 8
-  {
-    question: "什么东西越用就越少？",
-    answer: "钱"
-  },
-  // 9
-  {
-    question: "两点之间，哪段路最短？",
-    answer: "直线"
-  },
-  // 10
-  {
-    question: "哪种“瓜”不能吃？",
-    answer: "傻瓜"
-  },
-  // 11
-  {
-    question: "哪种蚊子不咬人？",
-    answer: "死蚊子"
-  },
-  // 12
-  {
-    question: "什么东西请人吃没人要，自己吃又觉得苦？",
-    answer: "药"
-  },
-  // 13
-  {
-    question: "在家时它从不进门，出门时却跟着你到处跑。",
-    answer: "钥匙"
-  },
-  // 14
-  {
-    question: "什么门永远敞开，却从来没有人真正进出？",
-    answer: "球门"
-  },
-  // 15
-  {
-    question: "小明的爸爸有三个儿子，大儿子叫大毛，二儿子叫二毛，三儿子叫什么？",
-    answer: "小明"
-  },
-  // 16
-  {
-    question: "什么老鼠两条腿走路？",
-    answer: "米老鼠"
-  },
-  // 17
-  {
-    question: "什么鸭子两条腿走路？",
-    answer: "所有鸭子"
-  },
-  // 18
-  {
-    question: "哪一种语言世界通用，却不用嘴巴说？",
-    answer: "微笑"
-  },
-  // 19
-  {
-    question: "把什么打破了不会受到处分，反而会得到奖励？",
-    answer: "记录"
-  },
-  // 20
-  {
-    question: "什么布用刀也剪不断？",
-    answer: "瀑布"
-  },
-  // 21
-  {
-    question: "什么事情你明明没有做，却要受罚？",
-    answer: "作业"
-  },
-  // 22
-  {
-    question: "汽车在右转弯时，哪只轮胎不转？",
-    answer: "备用轮胎"
-  },
-  // 23
-  {
-    question: "什么东西自己不会动，却能带你走遍世界？",
-    answer: "地图"
-  },
-  // 24
-  {
-    question: "什么东西打破了才能分享？",
-    answer: "鸡蛋"
-  },
-  // 25
-  {
-    question: "什么动物天天熬夜？",
-    answer: "熊猫"
-  },
-  // 26
-  {
-    question: "大象的左耳像什么？",
-    answer: "右耳"
-  },
-  // 27
-  {
-    question: "哪种疼痛最容易“传染”？",
-    answer: "牙疼"
-  },
-  // 28
-  {
-    question: "熊跳进水里会变成什么？",
-    answer: "湿熊"
-  },
-  // 29
-  {
-    question: "什么动物最没有方向感？",
-    answer: "麋鹿"
-  },
-  // 30
-  {
-    question: "什么东西往上升，也往下流？",
-    answer: "温度"
-  }
-];
+    // 多選題型的燈謎清單（依照順序出題）
+    // question: 題目
+    // options: 選項 (陣列)
+    // correctIndex: 正確答案在 options 裡的索引 (0~n)
+    const riddles = [
+      {
+        question: "什么东西会“走”，却没有腿？",
+        options: ["鞋子", "钟（或表）", "桌子", "鱼"],
+        correctIndex: 1
+      },
+      {
+        question: "什么东西有“脚”，却不会走路？",
+        options: ["桌子", "袜子", "椅子", "钟"],
+        correctIndex: 0
+      },
+      {
+        question: "什么东西白天见不到，只有晚上才能见到？",
+        options: ["黑夜", "星星", "太阳", "月亮"],
+        correctIndex: 1
+      },
+      {
+        question: "什么东西晚上见不到，只有白天才能见到？",
+        options: ["星星", "云", "太阳", "灯"],
+        correctIndex: 2
+      },
+      {
+        question: "什么东西越热越爱往外跑？",
+        options: ["冰", "汗", "蒸汽", "热水"],
+        correctIndex: 1
+      },
+      {
+        question: "什么东西戴在眼睛上，你却看不到它？",
+        options: ["眼镜", "隐形眼镜", "帽子", "耳机"],
+        correctIndex: 0
+      },
+      {
+        question: "什么东西没有生命，却能帮助你走路？",
+        options: ["椅子", "鞋子", "拐杖", "飞机"],
+        correctIndex: 1
+      },
+      {
+        question: "什么东西脱了皮，里面还有皮？",
+        options: ["香蕉", "土豆", "洋葱", "橘子"],
+        correctIndex: 2
+      },
+      {
+        question: "什么“马”永远不会跑？",
+        options: ["斑马", "木马", "白马", "夜马"],
+        correctIndex: 1
+      },
+      {
+        question: "什么动物天天在水里，却不会溺水？",
+        options: ["青蛙", "鱼", "鸭子", "乌龟"],
+        correctIndex: 1
+      },
+      {
+        question: "什么东西越洗越小？",
+        options: ["头发", "碗", "肥皂", "毛巾"],
+        correctIndex: 2
+      },
+      {
+        question: "下雨不停的时候，哪种伞一点儿也派不上用场？",
+        options: ["雨伞", "太阳伞", "折叠伞", "透明伞"],
+        correctIndex: 1
+      },
+      {
+        question: "为什么“秘密”是世界上最轻的东西？",
+        options: [
+          "因为它飘在空中",
+          "因为它没有质量",
+          "因为说出去就没了",
+          "因为太虚幻"
+        ],
+        correctIndex: 2
+      },
+      {
+        question: "哪种“鸡”不会叫？",
+        options: ["烤鸡", "母鸡", "公鸡", "炸鸡"],
+        correctIndex: 3
+      },
+      {
+        question: "什么水永远不会结冰？",
+        options: ["热水", "纯净水", "盐水", "海水"],
+        correctIndex: 0
+      }
+    ];
 
-
-
-    let currentRiddle = null; // 目前出的題目
-    let score = 0;            // 答對題數
-    let total = 0;            // 出題總數
+    let currentIndex = -1; // 用來指示當前題目索引，-1 代表尚未開始
+    let score = 0;         // 答對題數
+    let total = 0;         // 出題總數
 
     const questionDiv = document.getElementById("question");
-    const answerInput = document.getElementById("answerInput");
-    const submitBtn = document.getElementById("submitBtn");
-    const nextBtn = document.getElementById("nextBtn");
+    const optionsDiv = document.getElementById("options");
     const resultDiv = document.getElementById("result");
     const scoreDiv = document.getElementById("score");
+    const submitBtn = document.getElementById("submitBtn");
+    const nextBtn = document.getElementById("nextBtn");
 
-    // 按「下一題」時，隨機挑選一個燈謎並顯示
-    function nextRiddle() {
-      currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
-      questionDiv.textContent = currentRiddle.question;
-      answerInput.value = "";
+    // 顯示指定索引的題目
+    function showRiddle(index) {
+      const riddle = riddles[index];
+      questionDiv.textContent = riddle.question;
+      optionsDiv.innerHTML = "";
       resultDiv.textContent = "";
+
+      // 動態顯示選項 (使用 radio button)
+      riddle.options.forEach((option, idx) => {
+        const label = document.createElement("label");
+        label.style.display = "block";
+        label.style.marginBottom = "8px";
+
+        const radio = document.createElement("input");
+        radio.type = "radio";
+        radio.name = "riddleOption"; 
+        radio.value = idx;  // 選項索引
+
+        label.appendChild(radio);
+        label.appendChild(document.createTextNode(option));
+
+        optionsDiv.appendChild(label);
+      });
     }
 
-    // 按「送出答案」時，檢查是否答對
+    // 「下一題」的動作：切換到下一題（順序）
+    function nextRiddle() {
+      // 先檢查是否還有未出完的題目
+      if (currentIndex < riddles.length - 1) {
+        currentIndex++;
+        showRiddle(currentIndex);
+      } else {
+        // 如果已經到最後一題，顯示提示
+        resultDiv.style.color = "blue";
+        resultDiv.textContent = "題目已全部結束！";
+      }
+    }
+
+    // 「送出答案」：檢查是否答對
     function checkAnswer() {
-      if (!currentRiddle) {
+      // 如果還沒開始 (currentIndex == -1)，無法作答
+      if (currentIndex < 0) {
         resultDiv.style.color = "red";
         resultDiv.textContent = "請先按「下一題」開始遊戲！";
         return;
       }
-      const userAnswer = answerInput.value.trim();
-      if (userAnswer === currentRiddle.answer) {
+      // 若已經全部答完了 (currentIndex >= riddles.length)，也給個提示
+      if (currentIndex >= riddles.length) {
+        resultDiv.style.color = "blue";
+        resultDiv.textContent = "題目已全部結束，無法再作答。";
+        return;
+      }
+
+      const riddle = riddles[currentIndex];
+
+      // 取得選中的 radio
+      const selectedOption = document.querySelector('input[name="riddleOption"]:checked');
+      if (!selectedOption) {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "請先選擇一個答案！";
+        return;
+      }
+
+      const userChoice = parseInt(selectedOption.value, 10);
+      const correctIndex = riddle.correctIndex;
+
+      if (userChoice === correctIndex) {
         resultDiv.style.color = "green";
         resultDiv.textContent = "恭喜你，答對了！";
         score++;
       } else {
         resultDiv.style.color = "red";
-        resultDiv.textContent = `很可惜，正確答案是：${currentRiddle.answer}`;
+        resultDiv.textContent = `很可惜，正確答案是：「${riddle.options[correctIndex]}」`;
       }
+
       total++;
       scoreDiv.textContent = `目前分數：${score}/${total}`;
     }
