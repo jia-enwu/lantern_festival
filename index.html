@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <title>猜燈謎遊戲</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      text-align: center;
+      line-height: 1.6;
+    }
+    #question {
+      font-size: 20px;
+      margin: 20px 0;
+    }
+    #result {
+      margin: 10px 0;
+    }
+    #score {
+      margin: 10px 0;
+    }
+    button {
+      margin: 5px;
+      padding: 5px 10px;
+      font-size: 16px;
+    }
+    input[type="text"] {
+      width: 200px;
+      padding: 5px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+  <h1>猜燈謎遊戲</h1>
+
+  <!-- 燈謎題目顯示區 -->
+  <div id="question">按「下一題」開始答題</div>
+
+  <!-- 答案輸入欄位 -->
+  <input type="text" id="answerInput" placeholder="輸入你的答案" />
+
+  <!-- 送出答案按鈕 -->
+  <button id="submitBtn">送出答案</button>
+
+  <!-- 結果顯示 -->
+  <div id="result"></div>
+
+  <!-- 分數顯示 -->
+  <div id="score">目前分數：0/0</div>
+
+  <!-- 下一題按鈕 -->
+  <button id="nextBtn">下一題</button>
+
+  <script>
+    // 燈謎清單（可自行增修）
+    const riddles = [
+      {
+        question: "一個字，當月亮被雲遮住時，它最容易被發現。",
+        answer: "有",
+      },
+      {
+        question: "兩個字，能載人也能載貨，卻不能在陸地上行走。",
+        answer: "船",
+      },
+      {
+        question: "三個字，幫助你寫下文字又幫你捉住記憶，常見於辦公室或書房。",
+        answer: "記事本",
+      },
+    ];
+
+    let currentRiddle = null; // 目前出的題目
+    let score = 0;            // 答對題數
+    let total = 0;            // 出題總數
+
+    const questionDiv = document.getElementById("question");
+    const answerInput = document.getElementById("answerInput");
+    const submitBtn = document.getElementById("submitBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const resultDiv = document.getElementById("result");
+    const scoreDiv = document.getElementById("score");
+
+    // 按「下一題」時，隨機挑選一個燈謎並顯示
+    function nextRiddle() {
+      currentRiddle = riddles[Math.floor(Math.random() * riddles.length)];
+      questionDiv.textContent = currentRiddle.question;
+      answerInput.value = "";
+      resultDiv.textContent = "";
+    }
+
+    // 按「送出答案」時，檢查是否答對
+    function checkAnswer() {
+      if (!currentRiddle) {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = "請先按「下一題」開始遊戲！";
+        return;
+      }
+      const userAnswer = answerInput.value.trim();
+      if (userAnswer === currentRiddle.answer) {
+        resultDiv.style.color = "green";
+        resultDiv.textContent = "恭喜你，答對了！";
+        score++;
+      } else {
+        resultDiv.style.color = "red";
+        resultDiv.textContent = `很可惜，正確答案是：${currentRiddle.answer}`;
+      }
+      total++;
+      scoreDiv.textContent = `目前分數：${score}/${total}`;
+    }
+
+    // 綁定按鈕事件
+    nextBtn.addEventListener("click", nextRiddle);
+    submitBtn.addEventListener("click", checkAnswer);
+  </script>
+</body>
+</html>
